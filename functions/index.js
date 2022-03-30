@@ -8,8 +8,8 @@ var newData;
 
 
 
-//GET DOCUMENT CHANGES
-exports.messageNotification = functions.firestore.document("VideoChat/{chatID}").onCreate( async (snapshot, context) => {
+//VIDEO CHAT NOTİFİCATİONS
+exports.videoNotification = functions.firestore.document("VideoChat/{chatID}").onCreate( async (snapshot, context) => {
     if(snapshot.empty){
         console.log('NO DEVICES');
         return;
@@ -19,8 +19,8 @@ exports.messageNotification = functions.firestore.document("VideoChat/{chatID}")
     
 
     //GENERATE TOKEN
-    const appID = 'app_id';
-    const appCertificate = 'ap_certificate';
+    const appID = 'APP_ID';
+    const appCertificate = 'APP_CERTIFICATE';
     const channelName = newData.channelName;
     const uid = 0;
     const account = "accounName";
@@ -82,4 +82,55 @@ exports.messageNotification = functions.firestore.document("VideoChat/{chatID}")
 
 
 })
+
+//Message Notifications
+exports.chatNotification = functions.firestore.document("MessageChatNotify/{notifyId}").onCreate( async (snapshot, context) => {
+    if(snapshot.empty){
+        console.log('NO DEVICES');
+        return;
+    }
+
+    messageData = snapshot.data();
+    
+
+
+    var tokens = [];
+    tokens = messageData.receivers;
+
+    var payload ={
+        notification: {
+            title: "Yeni Mesaj",
+            body: messageData.senderName + ': ' + messageData.message,
+            sound: 'default',
+        },
+
+        data:
+        {
+            message: messageData.message,
+        },
+      
+    }
+
+    //SEND NOTIFICATION WITH FIREBASE CLOUD MESSAGING
+    try {
+        for(t of tokens){
+            const response = await admin.messaging().sendToDevice(t, payload,   {
+                // Required for background/quit data-only messages on iOS
+                contentAvailable: true,
+                // Required for background/quit data-only messages on Android
+                priority: "high",
+              });
+            console.log('notification sended! ' + 'to : '+ t);
+        }
+       
+    } catch (error) {
+
+        console.log('Error: '+error.message);
+        
+    }
+
+
+})
+
+
 
