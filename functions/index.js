@@ -58,7 +58,10 @@ exports.videoNotification = functions.firestore.document("VideoChat/{chatID}").o
         {
             token: tokenA,
             channelName: newData.channelName,
-            type:"video"
+            type:"video",
+            img:newData.img,
+            senderName: newData.senderName
+
 
         },
       
@@ -119,7 +122,7 @@ exports.voiceChat = functions.firestore.document("VoiceChat/{chatID}").onCreate(
 
     //UPDATE DOCUMENT WITH TOKEN
     var db = admin.firestore();
-    const response  = await db.collection("VideoChat").doc(snapshot.id).update({'token': tokenA,});
+    const response  = await db.collection("VoiceChat").doc(snapshot.id).update({'token': tokenA,});
     console.log(response.message)
 
     var tokens = [];
@@ -136,7 +139,10 @@ exports.voiceChat = functions.firestore.document("VoiceChat/{chatID}").onCreate(
         {
             token: tokenA,
             channelName: newData.channelName,
-            type:"voice"
+            type:"voice",
+            img:newData.img,
+            senderName: newData.senderName
+
         },
       
     }
